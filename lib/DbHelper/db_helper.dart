@@ -30,21 +30,23 @@ class DBHelper {
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
-      create table users
+      create table users(
       id integer primary key autoincrement,
       name text not null,
       email text not null,
       number text not null,
       password text not null
+      );
       ''');
 
         await db.execute('''
-      create table contacts
+      create table contacts(
       id integer primary key autoincrement,
       name text not null,
       number text not null,
       user_id integer,
       foreign key(user_id) references users(id)
+      );
       ''');
       },
     );
