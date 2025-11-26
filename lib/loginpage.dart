@@ -1,3 +1,4 @@
+import 'package:contacts/DbHelper/db_helper.dart';
 import 'package:contacts/home.dart';
 import 'package:contacts/registerpage.dart';
 import 'package:flutter/material.dart';
@@ -15,23 +16,31 @@ class _LoginPageState extends State<LoginPage> {
   final emailctr = TextEditingController();
   final passwordctr = TextEditingController();
   String errorMsg = "";
+  DBHelper dbClient = DBHelper.getInstance;
 
   Future<void> LoginUser() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    await pref.setBool("isLoggedIn", true);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Login Successful"),
-        duration: Duration(seconds: 1),
-      ),
-    );
-
-    Future.delayed(Duration(seconds: 1), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Home()),
+    var user = await dbClient.fetchUser(emailctr.text, passwordctr.text);
+    if (user != null) {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      await pref.setBool("isLoggedIn", true);
+      await pref.setInt("userId", user['id']);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Login Successful"),
+          duration: Duration(seconds: 1),
+        ),
       );
-    });
+      Future.delayed(Duration(seconds: 1), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+      });
+    } else {
+      setState(() {
+        errorMsg = "Email or Password Incorrect!";
+      });
+    }
   }
 
   @override

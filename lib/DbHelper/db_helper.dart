@@ -55,7 +55,84 @@ class DBHelper {
   //insert user
   Future<int> insertUser(Map<String, dynamic> data) async {
     var db = await getDB();
-    return db.insert("users", data);
+    return await db.insert("users", data);
   }
 
+  // fetch user for login
+  Future<Map<String, dynamic>?> fetchUser(String email, String password) async {
+    var db = await getDB();
+    var result = await db.query(
+      "users",
+      where: "email=? and password=?",
+      whereArgs: [email, password],
+    );
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return null;
+  }
+
+  //fetch user by id
+  Future<Map<String, dynamic>?> fetchUserById(int id) async {
+    var db = await getDB();
+    var result = await db.query("users", where: "id=?", whereArgs: [id]);
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return null;
+  }
+
+  //update user
+  Future<int> updateUser(
+    String name,
+    String email,
+    String number,
+    int id,
+  ) async {
+    var db = await getDB();
+    return await db.update(
+      "users",
+      {"name": name, "email": email, "number": number},
+      where: "id=?",
+      whereArgs: [id],
+    );
+  }
+
+  //add contact
+  Future<int> addContact(Map<String, dynamic> data) async {
+    var db = await getDB();
+    return await db.insert("contacts", data);
+  }
+
+  //fetch contacts by user id
+  Future<List<Map<String, dynamic>>> fetchContacts(int id) async {
+    var db = await getDB();
+    List<Map<String, dynamic>> contacts = await db.query(
+      "contacts",
+      where: "user_id=?",
+      whereArgs: [id],
+      orderBy: "name asc"
+    );
+    // List<Map<String, dynamic>> contacts = await db.rawQuery(
+    //   "select * from contacts where user_id=$id order by name",
+    // );
+    return contacts;
+  }
+
+  //update contact
+  Future<int> updateContact(String name, String number, int id) async {
+    var db = await getDB();
+    return await db.update(
+      "contacts",
+      {"name": name, "number": number},
+      where: "id=?",
+      whereArgs: [id],
+    );
+  }
+
+  //delete contact
+  Future<int> deleteContact(int id) async {
+    var db = await getDB();
+    return await db.delete("contacts", where: "id=?", whereArgs: [id]);
+  }
 }

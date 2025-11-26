@@ -1,3 +1,4 @@
+import 'package:contacts/DbHelper/db_helper.dart';
 import 'package:contacts/editcontact.dart';
 import 'package:contacts/loginpage.dart';
 import 'package:contacts/mycard.dart';
@@ -12,16 +13,29 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String? userid;
+  DBHelper dbClient = DBHelper.getInstance;
+  late int userid;
   dynamic users;
   List contacts = [];
+  final _formKey = GlobalKey<FormState>();
+  final cnamectr = TextEditingController();
+  final cphonectr = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    load();
   }
 
-  Future<void> Logout() async {
+  Future<void> load() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    userid = pref.getInt("userId")!;
+    users = await dbClient.fetchUserById(userid);
+    contacts = await dbClient.fetchContacts(userid);
+    setState(() {});
+  }
+
+  Future<void> logout() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     await pref.setBool("isLoggedIn", false);
     Navigator.pushReplacement(
@@ -30,10 +44,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void AddContacts() {
-    final _formKey = GlobalKey<FormState>();
-    final cnamectr = TextEditingController();
-    final cphonectr = TextEditingController();
+  void addContactsSheet() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -111,7 +122,24 @@ class _HomeState extends State<Home> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
-                            if (_formKey.currentState!.validate()) {}
+                            if (_formKey.currentState!.validate()) {
+                              int row = await dbClient.addContact({
+                                "name": cnamectr.text,
+                                "number": cphonectr.text,
+                                "user_id": userid,
+                              });
+                              if (row > 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Contact Added.")),
+                                );
+                                Navigator.pop(context);
+                                setState(() {
+                                  cnamectr.text = "";
+                                  cphonectr.text = "";
+                                  load();
+                                });
+                              }
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
@@ -161,7 +189,7 @@ class _HomeState extends State<Home> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Logout();
+                        logout();
                       },
                       child: Text("logout"),
                     ),
@@ -175,7 +203,7 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          AddContacts();
+          addContactsSheet();
         },
         backgroundColor: Color(0xE15E5EBA),
         child: Icon(Icons.add_ic_call_outlined, color: Colors.white),
@@ -210,6 +238,7 @@ class _HomeState extends State<Home> {
                         context,
                         MaterialPageRoute(builder: (context) => MyCard()),
                       );
+                      load();
                     },
                     trailing: Icon(
                       Icons.arrow_forward_ios_outlined,
@@ -249,12 +278,12 @@ class _HomeState extends State<Home> {
                             leading: CircleAvatar(
                               backgroundColor: Color(0xE15E5EBA),
                               child: Text(
-                                contacts[index]["cname"][0].toUpperCase(),
+                                contacts[index]["name"][0].toUpperCase(),
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
-                            title: Text(contacts[index]["cname"]),
-                            subtitle: Text(contacts[index]["cphone"]),
+                            title: Text(contacts[index]["name"]),
+                            subtitle: Text(contacts[index]["number"]),
                             trailing: IconButton(
                               icon: Icon(Icons.call, color: Colors.green),
                               onPressed: () {},
@@ -267,6 +296,7 @@ class _HomeState extends State<Home> {
                                       EditContact(contact: contacts[index]),
                                 ),
                               );
+                              load();
                             },
                           ),
                           Divider(color: Colors.black12, indent: 70),
