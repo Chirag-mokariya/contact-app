@@ -1,3 +1,4 @@
+import 'package:contacts/DbHelper/db_helper.dart';
 import 'package:flutter/material.dart';
 
 class EditContact extends StatefulWidget {
@@ -10,16 +11,28 @@ class EditContact extends StatefulWidget {
 }
 
 class _EditContactState extends State<EditContact> {
-  String? userid;
   dynamic current_contact;
   final namectr = TextEditingController();
   final phonectr = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  DBHelper dbClient = DBHelper.getInstance;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    current_contact = widget.contact;
+    namectr.text = current_contact['name'];
+    phonectr.text = current_contact['number'];
+  }
+
+  Future<void> deleteContact() async {
+    int row = await dbClient.deleteContact(current_contact['id']);
+    if (row > 0) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Contact Deleted.")));
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -30,8 +43,20 @@ class _EditContactState extends State<EditContact> {
           Padding(
             padding: const EdgeInsets.only(right: 20),
             child: ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {}
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  int row = await dbClient.updateContact(
+                    namectr.text,
+                    phonectr.text,
+                    current_contact['id'],
+                  );
+                  if (row > 0) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text("Contact Updated.")));
+                    Navigator.pop(context);
+                  }
+                }
               },
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
@@ -57,7 +82,7 @@ class _EditContactState extends State<EditContact> {
             current_contact == null
                 ? CircularProgressIndicator()
                 : Text(
-                    current_contact['cname'],
+                    current_contact['name'],
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
             SizedBox(height: 20),
@@ -169,7 +194,9 @@ class _EditContactState extends State<EditContact> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    deleteContact();
+                  },
                   child: Text(
                     "Delete",
                     style: TextStyle(

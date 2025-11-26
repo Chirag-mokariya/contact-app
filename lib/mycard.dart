@@ -1,3 +1,4 @@
+import 'package:contacts/DbHelper/db_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,7 +10,8 @@ class MyCard extends StatefulWidget {
 }
 
 class _MyCardState extends State<MyCard> {
-  String? userid;
+  DBHelper dbClient = DBHelper.getInstance;
+  late int userid;
   dynamic users;
   final namectr = TextEditingController();
   final emailctr = TextEditingController();
@@ -25,9 +27,29 @@ class _MyCardState extends State<MyCard> {
 
   Future<void> load() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+    userid = pref.getInt("userId")!;
+    users = await dbClient.fetchUserById(userid);
+
     setState(() {
-      userid = pref.getString("userid");
+      namectr.text = users['name'];
+      emailctr.text = users['email'];
+      phonectr.text = users['number'];
     });
+  }
+
+  Future<void> updateUser() async {
+    int row = await dbClient.updateUser(
+      namectr.text,
+      emailctr.text,
+      phonectr.text,
+      userid,
+    );
+    if (row > 0) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Details Updated")));
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -39,7 +61,9 @@ class _MyCardState extends State<MyCard> {
             padding: const EdgeInsets.only(right: 20),
             child: ElevatedButton(
               onPressed: () {
-                if (_formKey.currentState!.validate()) {}
+                if (_formKey.currentState!.validate()) {
+                  updateUser();
+                }
               },
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
