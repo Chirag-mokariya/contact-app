@@ -23,17 +23,17 @@ A Flutter application for **Contact Management** with **Login/Register** functio
 ---
 
 ## Screenshots
--Register screen
+- **Register Screen**
 ![register.png](Screenshort/register.png)
 
---Login screen
+- **Login Screen**
 ![login.png](Screenshort/login.png)
 
---Home screen
+- **Home Screen**
 ![home.png](Screenshort/home.png)
 
--- My card
+- **MyCard Screen**
 ![mycard.png](Screenshort/mycard.png)
 
---Contact edit delete screen
+- **Contact Edit or Delete Screen**
 ![contactedit.png](Screenshort/contactedit.png)
