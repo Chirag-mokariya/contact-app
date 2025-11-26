@@ -21,19 +21,29 @@ A Flutter application for **Contact Management** with **Login/Register** functio
     - Fully compatible with Flutter latest stable version
 
 ---
+## 📱 App Screenshots
 
-## Screenshots
-- **Register Screen**
-![register.png](Screenshort/register.png)
+### 📝 Register Screen
+<p align="center">
+  <img src="Screenshort/register.png" width="30%">
+</p>
 
-- **Login Screen**
-![login.png](Screenshort/login.png)
+### 🔐 Login Screen
+<p align="center">
+  <img src="Screenshort/login.png" width="30%">
+</p>
 
-- **Home Screen**
-![home.png](Screenshort/home.png)
+### 🏠 Home Screen
+<p align="center">
+  <img src="Screenshort/home.png" width="30%">
+</p>
 
-- **MyCard Screen**
-![mycard.png](Screenshort/mycard.png)
+### 💳 MyCard Screen
+<p align="center">
+  <img src="Screenshort/mycard.png" width="30%">
+</p>
 
-- **Contact Edit or Delete Screen**
-![contactedit.png](Screenshort/contactedit.png)
+### ✏️ Contact Edit / Delete Screen
+<p align="center">
+  <img src="Screenshort/contactedit.png" width="30%">
+</p>
